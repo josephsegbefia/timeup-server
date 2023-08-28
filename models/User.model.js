@@ -5,7 +5,8 @@ const userSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, unique: true, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  timers: [{ type: Schema.Types.ObjectId, ref: "Timer" }]
 });
 
 module.exports = model("User", userSchema);
