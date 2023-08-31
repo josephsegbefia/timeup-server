@@ -64,4 +64,20 @@ router.post("/:user/timers/:timerId/edit", async (req, res, next) => {
   }
 });
 
+//Start timer
+router.post("/users/:user/timers/:timerId/start", async (req, res, next) => {
+  try {
+    const { user, timerId } = req.params;
+    const timer = await Timer.findOne({ _id: timerId, user });
+    if (!timer) {
+      return res.status(404).json({ message: "Timer does not exist" });
+    }
+    timer.runningSince = req.body.start;
+    const startedTimer = await timer.save();
+    res.status(200).json(startedTimer);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 module.exports = router;
