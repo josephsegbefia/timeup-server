@@ -64,6 +64,26 @@ router.post("/:user/timers/:timerId/edit", async (req, res, next) => {
   }
 });
 
+router.delete("/timers/:timerId", async (req, res, next) => {
+  try {
+    const { timerId } = req.params;
+
+    // Use Mongoose to find and delete the timer by its ID
+    const deletedTimer = await Timer.findByIdAndDelete(timerId);
+
+    if (!deletedTimer) {
+      // If the timer with the given ID doesn't exist, return a 404 status
+      return res.status(404).json({ message: "Timer not found" });
+    }
+
+    // If the timer was successfully deleted, return a success message
+    res.json({ message: "Timer deleted successfully" });
+  } catch (error) {
+    // If an error occurs during the deletion process, pass it to the error handling middleware
+    next(error);
+  }
+});
+
 //Start timer
 router.post("/users/:user/timers/:timerId/start", async (req, res, next) => {
   try {
