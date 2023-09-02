@@ -76,6 +76,11 @@ router.delete("/timers/:timerId", async (req, res, next) => {
       return res.status(404).json({ message: "Timer not found" });
     }
 
+    // Remove the timer ID from the timers array in the User model
+    await User.findByIdAndUpdate(deletedTimer.user, {
+      $pull: { timers: deletedTimer._id }
+    });
+
     // If the timer was successfully deleted, return a success message
     res.json({ message: "Timer deleted successfully" });
   } catch (error) {
