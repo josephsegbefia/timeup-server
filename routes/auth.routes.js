@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
+const crypto = require("crypto");
 
 const { isAuthenticated } = require("./../middleware/jwt.middleware");
 const router = express.Router();
@@ -50,7 +51,8 @@ router.post("/signup", (req, res, next) => {
       email,
       firstName,
       lastName,
-      password: hashedPassword
+      password: hashedPassword,
+      emailToken: crypto.randomBytes(64).toString("hex")
     })
       .then((createdUser) => {
         const { email, firstName, lastName, _id } = createdUser;
@@ -98,6 +100,33 @@ router.post("/login", (req, res, next) => {
       }
     })
     .catch((err) => res.status(500).json({ message: "Internal Serber Error" }));
+});
+
+router.post("/verify-email", async (req, res, next) => {
+  try {
+    const emailToken = req.body.emailToken;
+    if (!emailToken)
+      return res.status(404).json({ message: "Email Token not found." });
+
+    const user = await User.findOne({ emailToken });
+    if (user) {
+      user.emailToken = null;
+      user.isVerified = true;
+      await user.save();
+
+      res.status(200).json({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      });
+    } else {
+      res.status.apply(404).json("Email verification failed, invalid token");
+    }
+  } catch (error) {
+    consoel.log(error);
+    res.status(500).json(error.message);
+  }
 });
 
 router.get("/verify", isAuthenticated, (req, res, next) => {

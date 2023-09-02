@@ -6,6 +6,8 @@ const userSchema = new Schema({
   lastName: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  emailToken: { type: String },
   timers: [{ type: Schema.Types.ObjectId, ref: "Timer" }]
 });
 
