@@ -84,6 +84,14 @@ router.post("/login", (req, res, next) => {
         return;
       }
 
+      if (!foundUser.isVerified) {
+        res.status(401).json({
+          message:
+            "Please login to the email you provided, a verification link has been sent to you"
+        });
+        return;
+      }
+
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
@@ -118,13 +126,14 @@ router.post("/verify-email", async (req, res, next) => {
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        isVerified: user.isVerified
       });
     } else {
-      res.status.apply(404).json("Email verification failed, invalid token");
+      res.status(404).json("Email verification failed, invalid token");
     }
   } catch (error) {
-    consoel.log(error);
+    console.log(error);
     res.status(500).json(error.message);
   }
 });
