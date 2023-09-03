@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 const crypto = require("crypto");
+const { sendVerificationMail } = require("../config/sendVerificationMail");
 
 const { isAuthenticated } = require("./../middleware/jwt.middleware");
 const router = express.Router();
@@ -55,9 +56,10 @@ router.post("/signup", (req, res, next) => {
       emailToken: crypto.randomBytes(64).toString("hex")
     })
       .then((createdUser) => {
-        const { email, firstName, lastName, _id } = createdUser;
+        const { email, firstName, lastName, _id, emailToken } = createdUser;
 
-        const user = { email, firstName, lastName, _id };
+        const user = { email, firstName, lastName, _id, emailToken };
+        sendVerificationMail(user);
         res.status(201).json({ user: user });
       })
       .catch((err) => {
