@@ -177,6 +177,7 @@ router.post("/password-reset", async (req, res, next) => {
     const hashedPassword = bcrypt.hashSync(password, salt);
 
     user.password = hashedPassword;
+    user.passwordResetToken = crypto.randomBytes(64).toString("hex");
     await user.save();
     res.status(200).json({ message: "Password updated!" });
   } catch (error) {
