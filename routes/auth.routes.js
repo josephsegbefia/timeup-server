@@ -54,12 +54,27 @@ router.post("/signup", (req, res, next) => {
       firstName,
       lastName,
       password: hashedPassword,
-      emailToken: crypto.randomBytes(64).toString("hex")
+      emailToken: crypto.randomBytes(64).toString("hex"),
+      passwordResetToken: crypto.randomBytes(64).toString("hex")
     })
       .then((createdUser) => {
-        const { email, firstName, lastName, _id, emailToken } = createdUser;
+        const {
+          email,
+          firstName,
+          lastName,
+          _id,
+          emailToken,
+          passwordResetToken
+        } = createdUser;
 
-        const user = { email, firstName, lastName, _id, emailToken };
+        const user = {
+          email,
+          firstName,
+          lastName,
+          _id,
+          emailToken,
+          passwordResetToken
+        };
         sendVerificationMail(user);
         res.status(201).json({ user: user });
       })
@@ -141,15 +156,36 @@ router.post("/verify-email", async (req, res, next) => {
   }
 });
 
+router.post("/password-reset", async (req, res, next) => {
+  try {
+    const { passwordResetToken, password } = req.body;
+    if (!passwordResetToken) {
+      return res.status(404).json({ message: "Password token not found" });
+    }
+
+    const user = await User.findOne({ passwordResetToken });
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password updated!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
 router.post("/password-reset-email", async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (user) {
       sendPasswordResetEmail(user);
-      res
-        .status(200)
-        .json({ user, message: "Password reset email sent to your email" });
+      res.status(200).json({
+        user: user,
+        message: "Password reset email sent to your email"
+      });
     }
   } catch (error) {
     console.log(error);
