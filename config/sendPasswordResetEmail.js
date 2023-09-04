@@ -8,7 +8,7 @@ const sendPasswordResetEmail = (user) => {
     to: user.email,
     html: `<p>
             Hello 👋 ${user.firstName}, click the link to reset your password
-            <a href = ${process.env.CLIENT_URL}/password-reset?passwordResetToken=${user.passwordResetToken}>Reset Password</a>
+            <a href = https://jtimeapp.netlify.app/password-reset?passwordResetToken=${user.passwordResetToken}>Reset Password</a>
          </p>`
   };
 
