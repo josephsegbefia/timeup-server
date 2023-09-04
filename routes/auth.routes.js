@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 const crypto = require("crypto");
 const { sendVerificationMail } = require("../config/sendVerificationMail");
+const { sendPasswordResetEmail } = require("../config/sendPasswordResetEmail");
 
 const { isAuthenticated } = require("./../middleware/jwt.middleware");
 const router = express.Router();
@@ -137,6 +138,22 @@ router.post("/verify-email", async (req, res, next) => {
   } catch (error) {
     console.log(error);
     res.status(500).json(error.message);
+  }
+});
+
+router.post("/password-reset-email", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      sendPasswordResetEmail(user);
+      res
+        .status(200)
+        .json({ user, message: "Password reset email sent to your email" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: "Email not Found" });
   }
 });
 
