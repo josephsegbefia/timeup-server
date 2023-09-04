@@ -163,6 +163,15 @@ router.post("/password-reset", async (req, res, next) => {
       return res.status(404).json({ message: "Password token not found" });
     }
 
+    const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+    if (!passwordRegex.test(password)) {
+      res.status(400).json({
+        message:
+          "Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter."
+      });
+      return;
+    }
+
     const user = await User.findOne({ passwordResetToken });
     const salt = bcrypt.genSaltSync(saltRounds);
     const hashedPassword = bcrypt.hashSync(password, salt);
