@@ -196,6 +196,8 @@ router.post("/password-reset-email", async (req, res, next) => {
         user: user,
         message: "Password reset email sent to your email"
       });
+    } else {
+      res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
     console.log(error);
