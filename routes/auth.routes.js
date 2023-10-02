@@ -127,7 +127,7 @@ router.post("/login", (req, res, next) => {
         });
       }
     })
-    .catch((err) => res.status(500).json({ message: "Internal Serber Error" }));
+    .catch((err) => res.status(500).json({ message: "Internal Server Error" }));
 });
 
 router.post("/verify-email", async (req, res, next) => {
